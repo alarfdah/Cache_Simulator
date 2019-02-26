@@ -5,11 +5,12 @@
  * Author: Ahmed Radwan
  * Email: ahmedabdelwaha.radwan@wmich.edu
  */
-#ifndef LINE_H
-#define LINE_H
+#ifndef STATS_H
+#define STATS_H
 
-typedef struct struct_line {
-    unsigned int tag;
-    int valid;
-} line;
+typedef struct struct_stats {
+    int hits;
+    int misses;
+    int evictions;
+} stats;
 #endif

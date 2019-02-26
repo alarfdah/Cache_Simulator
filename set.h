@@ -10,6 +10,6 @@
 
 #include "line.h"
 typedef struct struct_set {
-    line *lines;
+    line **lines;
 } set;
 #endif

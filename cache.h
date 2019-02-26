@@ -10,6 +10,6 @@
 
 #include "set.h"
 typedef struct struct_cache {
-    set *sets;   
+    set **sets;
 } cache;
 #endif

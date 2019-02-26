@@ -8,3 +8,4 @@
 #include "cache.h"
 #include "set.h"
 #include "line.h"
+#include "stats.h"

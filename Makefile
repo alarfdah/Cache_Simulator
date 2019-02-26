@@ -1,3 +1,2 @@
 all:
-	gcc -std=c99 -Wall -pedantic -o Cachelab Cachelab.c
-
+	gcc -std=c99 -Wall -pedantic -g -o Cachelab Cachelab.c
