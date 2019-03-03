@@ -21,21 +21,26 @@
 #define LINE_SIZE 128
 #define ADDRESS_SIZE 64
 
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
-  (byte & 0x80 ? '1' : '0'), \
-  (byte & 0x40 ? '1' : '0'), \
-  (byte & 0x20 ? '1' : '0'), \
-  (byte & 0x10 ? '1' : '0'), \
-  (byte & 0x08 ? '1' : '0'), \
-  (byte & 0x04 ? '1' : '0'), \
-  (byte & 0x02 ? '1' : '0'), \
-  (byte & 0x01 ? '1' : '0')
+void help_menu() {
+	printf("Usage: ./Cachelab [-hv] -s <s> -E <E> -b <b> -t <tracefile>\n");
+	printf("Options:\n");
+	printf("\t-h\t\tPrint this help message.\n");
+	printf("\t-v\t\tOptional verbose flag.\n");
+	printf("\t-s <num>\tNumber of set index bits.\n");
+	printf("\t-E <num>\tNumber of lines per set.\n");
+	printf("\t-b <num>\tNumber of block offset bits.\n");
+	printf("\t-t <file>\tTrace file.\n");
+	printf("\n");
+	printf("Examples:\n");
+	printf("\tlinux> ./Cachelab -s 4 -E 1 -b 4 -t ./traces/yi.trace\n");
+	printf("\tlinux> ./Cachelab -v -s 6 -E 3 -b 2 -t ./traces/yi.trace\n");
+	exit(0);
+}
 
 void check_arguments(char **argv, int argc) {
 	if (argc < 9 || argc > 11) {
-		printf("Usage: ./Cachelab [-hv] -s <s> -E <E> -b <b> -t <tracefile>\n");
-		exit(-1);
+		help_menu();
+		exit(0);
 	}
 }
 
@@ -70,42 +75,65 @@ void open_trace_file(FILE **fp, char *fname) {
 }
 
 void parse_command_line_argument(char **fname, char **argv, int *s,
- int *e, int *b, int *v, int argc) {
+ int *e, int *b, int *h, int *v, int argc) {
 	int option;
 	int fname_len;
+	int s_exists = 0;
+	int e_exists = 0;
+	int b_exists = 0;
+	int t_exists = 0;
 
 	// Parse command line arguments
 	while ((option = getopt(argc, argv, "hvs:E:b:t:")) != -1) {
 		switch (option) {
+			case 'h':
+				(*h) = 1;
+			break;
 			case 'v':
 				(*v) = 1;
 			break;
 			case 's':
 				(*s) = atoi(optarg);
+				s_exists = 1;
 			break;
 			case 'E':
 				(*e) = atoi(optarg);
+				e_exists = 1;
 			break;
 			case 'b':
 				(*b) = atoi(optarg);
+				b_exists = 1;
 			break;
 			case 't':
 				fname_len = strlen(optarg);
 				(*fname) = malloc(fname_len + 1);
 				strncpy((*fname), optarg, fname_len);
 				(*fname)[fname_len] = '\0';
+				t_exists = 1;
 			break;
 		}
 	}
+
+	// Check that non-optional flags are set
+	if (!s_exists || !e_exists || !b_exists || !t_exists) {
+		help_menu();
+	}
 }
 
-void print_stats(stats *cache_stats) {
+void print_stats(stats *cache_stats, int v) {
+	// Print stats
 	printf("hits: %d ", cache_stats->hits);
 	printf("misses: %d ", cache_stats->total_misses);
-	printf("evictions: %d\n", cache_stats->evictions);
+	printf("evictions: %d", cache_stats->evictions);
+
+	// Verbose
+	if (v) {
+		printf(" cold misses: %d", cache_stats->cold_misses);
+	}
+	printf("\n");
 }
 
-void process_load(char *str, cache_t **lcache, int s,
+void process(char *str, cache_t **lcache, int s,
 	 int e, int b, int v, stats *cache_stats) {
 
 	line_t *temp;
@@ -122,35 +150,33 @@ void process_load(char *str, cache_t **lcache, int s,
 	n_sets = pow(2, s);
 
 	// Compute byte address
-	// printf("string: %s\n", str);
 	byte_addr = strtol(str, &end_ptr, 16);
-	// printf("byte_addr: "BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(byte_addr));
 
 	// Compute byte offset bits
 	byte_offset_bits = (ULONG_MAX >> ((ADDRESS_SIZE) - b));
-	// printf("offset_bits: "BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(byte_offset_bits));
 
 	// Compute tag bits
 	tag_bits = byte_addr >> s >> b;
-	// printf("tag_bits: "BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(tag_bits));
-
 	n_tag_bits = (ADDRESS_SIZE) - s - b;
 
-	// Get the set from byte_addr
+	// Get the set bits from byte_addr
 	set_bits = byte_addr & ((ULONG_MAX >> n_tag_bits) - byte_offset_bits);
 	set_bits >>= b;
-	// printf("set_bits: "BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(set_bits));
 
-	// printf("n_lines = %d\n", n_lines);
-
-	// Hit
+	// Cache Hit
 	temp = (*lcache)->sets[set_bits]->front;
 	while (temp != NULL) {
 		if (temp->valid == 1 && temp->tag == tag_bits) {
+			// Remove item we just accessed
 			remove_item_by_tag((*lcache)->sets[set_bits], tag_bits);
+
+			// Put it back at the front of the queue
 			enqueue((*lcache)->sets[set_bits], 1, tag_bits);
+
+			// Increment cache hits
 			cache_stats->hits++;
 
+			// Verbose
 			if (v) {
 				printf("hit ");
 			}
@@ -158,8 +184,8 @@ void process_load(char *str, cache_t **lcache, int s,
 		}
 		temp = temp->next;
 	}
-	
-	// Miss
+
+	// Cache Miss
 	cache_stats->total_misses++;
 
 	// Look for lines with no valid bits (cold miss)
@@ -168,22 +194,34 @@ void process_load(char *str, cache_t **lcache, int s,
 		temp = temp->next;
 	}
 
-	if (temp != NULL && temp->valid == 0) { // Cold miss
+	// Cold Miss
+	if (temp != NULL && temp->valid == 0) {
+		// Remove item with non-valid bit
 		remove_item_by_valid((*lcache)->sets[set_bits], 0);
+
+		// Enqueue item with valid bit
 		enqueue((*lcache)->sets[set_bits], 1, tag_bits);
 
+		// Increment cold misses
+		cache_stats->cold_misses++;
+
+		// Verbose
 		if (v) {
 			printf("miss ");
 		}
-		cache_stats->cold_misses++;
-	} else { // Eviction
+	// Miss Eviction
+	} else {
+		// Remove least recently used item (at the rear of queue)
 		dequeue((*lcache)->sets[set_bits]);
+		// Enqueue new item
 		enqueue((*lcache)->sets[set_bits], 1, tag_bits);
+		// Increment miss evictions
+		cache_stats->evictions++;
 
+		// Verbose
 		if (v) {
 			printf("miss eviction ");
 		}
-		cache_stats->evictions++;
 	}
 }
 
@@ -199,7 +237,6 @@ void read_and_process(FILE *fp, cache_t **lcache, int s,
 
 	// Grab a line
 	while (fgets(buf, (LINE_SIZE), fp) != NULL) {
-		printf("%d.", counter++);
 		// I, L, M, S
 		ptr = strtok(buf, " ");
 
@@ -231,11 +268,12 @@ void read_and_process(FILE *fp, cache_t **lcache, int s,
 			printf("%s ", ptr);
 		}
 
+		// Process
 		if (strncmp(mode, "I", 1) != 0) {
-			process_load(addr, lcache, s, e, b, v, cache_stats);
+			process(addr, lcache, s, e, b, v, cache_stats);
 		}
 		if (strncmp(mode, "M", 1) == 0) {
-			process_load(addr, lcache, s, e, b, v, cache_stats);
+			process(addr, lcache, s, e, b, v, cache_stats);
 		}
 
 		// Verbose
@@ -258,18 +296,22 @@ int main(int argc, char **argv) {
 	int s;
 	int e;
 	int b;
-	// int h;
+	int h = 0;
 	int v = 0;
 
 	// Stats
 	stats *cache_stats = malloc(sizeof(stats));
 
-
 	// Check number of arguments
 	check_arguments(argv, argc);
 
 	// Parse command line argumments
-	parse_command_line_argument(&fname, argv, &s, &e, &b, &v, argc);
+	parse_command_line_argument(&fname, argv, &s, &e, &b, &h, &v, argc);
+
+	// Help menu
+	if (h) {
+		help_menu();
+	}
 
 	// Declarations
 	declarations(&lcache, s, e);
@@ -284,7 +326,7 @@ int main(int argc, char **argv) {
 	fclose(fp);
 
 	// Print stats
-	print_stats(cache_stats);
+	print_stats(cache_stats, v);
 
 
 	return 0;

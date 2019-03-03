@@ -4,6 +4,7 @@
  * Assignment: Assignment 3 - Cachelab
  * Author: Ahmed Radwan
  * Email: ahmedabdelwaha.radwan@wmich.edu
+ * References: https://www.geeksforgeeks.org/queue-set-1introduction-and-array-implementation/
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,20 +51,28 @@ void enqueue(queue_set_t *q, int valid, int tag) {
 // Function to remove a key from given queue q
 void *dequeue(queue_set_t *q) {
     // If queue is empty, return NULL.
-    if (q->rear == NULL)
-       return NULL;
-
-		line_t *temp = q->front;
-		while (temp->next != q->rear) {
-			temp = temp->next;
+    if (q->rear == NULL) {
+			return NULL;
 		}
-		q->rear = temp;
-		temp->next = NULL;
 
-    // If front becomes NULL, then change rear also as NULL
-    if (q->rear == NULL)
-       q->front = NULL;
+		// If there is one item
+		if (q->front == q->rear) {
+			q->front = q->rear = NULL;
 
+		// More than one item in queue
+		} else {
+			line_t *temp = q->front;
+  		while (temp->next != q->rear) {
+  			temp = temp->next;
+  		}
+  		q->rear = temp;
+  		temp->next = NULL;
+
+      // If front becomes NULL, then change rear also as NULL
+      if (q->rear == NULL) {
+				q->front = NULL;
+			}
+		}
 		q->size--;
 }
 
