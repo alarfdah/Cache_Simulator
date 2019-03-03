@@ -143,11 +143,6 @@ void process(char *str, cache_t **lcache, int s,
 	unsigned int tag_bits;
 	unsigned int byte_offset_bits;
 	int n_tag_bits;
-	int n_sets;
-	int i;
-
-	// Calculate number of sets
-	n_sets = pow(2, s);
 
 	// Compute byte address
 	byte_addr = strtol(str, &end_ptr, 16);
@@ -232,8 +227,6 @@ void read_and_process(FILE *fp, cache_t **lcache, int s,
 	char *addr;
 	char *mode;
 	int len;
-
-	int counter = 0;
 
 	// Grab a line
 	while (fgets(buf, (LINE_SIZE), fp) != NULL) {

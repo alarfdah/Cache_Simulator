@@ -20,7 +20,7 @@ typedef struct struct_queue_set {
 line_t* new_node(int valid, int tag);
 queue_set_t *create_queue();
 void enqueue(queue_set_t *q, int valid, int tag);
-void *dequeue(queue_set_t *q);
+void dequeue(queue_set_t *q);
 void remove_item_by_valid(queue_set_t *q, int valid);
 void remove_item_by_tag(queue_set_t *q, int tag);
 #endif

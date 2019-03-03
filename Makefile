@@ -1,6 +1,6 @@
 # Reference: http://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 CC = gcc
-CFLAGS = -g -lm
+CFLAGS = -g -lm -Wall -pedantic
 DEPS = cache.h set.h line.h stats.h
 OBJ = Cachelab.o cache.o set.o line.o
 

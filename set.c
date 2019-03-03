@@ -49,7 +49,7 @@ void enqueue(queue_set_t *q, int valid, int tag) {
 }
 
 // Function to remove a key from given queue q
-void *dequeue(queue_set_t *q) {
+void dequeue(queue_set_t *q) {
     // If queue is empty, return NULL.
     if (q->rear == NULL) {
 			return NULL;
