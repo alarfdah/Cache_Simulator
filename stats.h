@@ -10,7 +10,8 @@
 
 typedef struct struct_stats {
     int hits;
-    int misses;
+    int cold_misses;
     int evictions;
+    int total_misses;
 } stats;
 #endif

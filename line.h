@@ -11,5 +11,6 @@
 typedef struct struct_line {
     unsigned int tag;
     int valid;
-} line;
+    struct struct_line *next;
+} line_t;
 #endif

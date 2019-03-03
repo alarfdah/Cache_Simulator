@@ -1,0 +1,55 @@
+0.L 7fefe0578,8 miss set_bits: 2 
+1.L 7fefe0598,4 miss set_bits: 2 
+2.L 7fefe059c,4 miss 
+3.M 7fefe0598,4 hit set_bits: 2 hit set_bits: 2 
+4.L 7fefe0590,4 miss 
+5.L 7fefe0598,4 hit set_bits: 2 
+6.L 7fefe0598,4 hit set_bits: 2 
+7.L 7fefe0574,4 miss 
+8.L 7fefe0578,8 hit set_bits: 2 
+9.L 7fefe0598,4 hit set_bits: 2 
+10.L 7fefe0574,4 hit 
+11.L 7fefe0578,8 hit set_bits: 2 
+12.L 7fefe0598,4 hit set_bits: 2 
+13.L 7fefe0574,4 hit 
+14.L 7fefe0578,8 hit set_bits: 2 
+15.L 7fefe0598,4 hit set_bits: 2 
+16.L 7fefe059c,4 hit 
+17.L 7feff1868,4 miss set_bits: 2 
+18.S 7fefe59d4,4 miss 
+19.M 7fefe059c,4 hit hit 
+20.L 7fefe0594,4 miss 
+21.L 7fefe059c,4 hit 
+22.L 7fefe059c,4 hit 
+23.L 7fefe058c,4 miss 
+24.L 7fefe059c,4 hit 
+25.L 7fefe0574,4 hit 
+26.L 7fefe0578,8 hit set_bits: 2 
+27.L 7fefe0598,4 hit set_bits: 2 
+28.L 7fefe0598,4 hit set_bits: 2 
+29.L 7fefe0570,4 miss 
+30.L 7fefe0580,8 miss 
+31.L 7fefe059c,4 hit 
+32.L 7feff186c,4 miss 
+33.S 7fefe5bd4,4 miss eviction 
+34.M 7fefe059c,4 hit hit 
+35.L 7fefe0594,4 hit 
+36.L 7fefe059c,4 hit 
+37.L 7fefe059c,4 hit 
+38.L 7fefe058c,4 hit 
+39.L 7fefe059c,4 hit 
+40.L 7fefe0574,4 miss eviction 
+41.L 7fefe0578,8 hit set_bits: 2 
+42.L 7fefe0598,4 hit set_bits: 2 
+43.L 7fefe0598,4 hit set_bits: 2 
+44.L 7fefe0570,4 hit 
+45.L 7fefe0580,8 hit 
+46.L 7fefe059c,4 hit 
+47.L 7feff1870,4 miss eviction 
+48.S 7fefe5dd4,4 miss eviction 
+49.M 7fefe059c,4 hit hit 
+50.L 7fefe0594,4 miss eviction 
+51.L 7fefe059c,4 hit 
+52.L 7fefe059c,4 hit 
+53.L 7fefe058c,4 hit 
+hits: 41 misses: 17 evictions: 5
